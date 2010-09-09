@@ -1,0 +1,15 @@
+# PhotoFiler
+
+Linkflags = -o $@ -bin -base 0
+ObjAsmflags = -throwback -depend !Depend -apcs 3/32bit
+SetTypeflags = $@
+
+src=o.PhotoFiler o.CreateWind o.DeleteWind o.Displays o.Divide o.Heap o.Icons o.PlotIcon o.FilerActive o.Filters o.RedrawWind o.SprCache o.Strings o.Thumbnails o.Palettes o.UpCall
+
+.s.o:;	objasm $(objasmflags) -from $< -to $@
+
+@.PhotoFiler: $(src)
+        link $(linkflags) $(src)
+        settype $(settypeflags) ffa
+
+# Dynamic dependencies:
