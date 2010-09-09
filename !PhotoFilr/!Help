@@ -1,0 +1,509 @@
+_____________________________________________________________________________
+
+                             P h o t o F i l e r
+
+                Picture thumbnailing extension for the Filer
+
+                    Written by David Thomas, ฉ 1998-2008
+
+                         version 2.08 (05 Feb 2008)
+_____________________________________________________________________________
+
+____________
+
+Introduction
+____________
+
+PhotoFiler adds picture "thumbnails" to the Filer.
+
+With PhotoFiler loaded, file type icons are replaced with a miniature version
+of the respective picture. This is useful for organising collections of
+pictures, as it enables you to rapidly identify the contents of a file simply
+by looking at its icon.
+
+In addition to thumbnailing, PhotoFiler provides additional controls over the
+presentation of icons in directory displays. You can define your own icons
+for directories which will be used instead of the usual directory sprites.
+This is ideal for providing a graphic representation of a directory's
+purpose.
+
+PhotoFiler also attempts to address a long-standing quirk ญ that of the pling
+("!") character in front of application names. These can hidden from view in
+directory viewers, giving neater looking directory displays.
+
+PhotoFiler requires RISC OS 3.6 or later. RISC OS 3.5 is supported, if the
+SpriteExtend 0.99 and DrawFile 1.30 modules are available (see the section
+"Compatibility" below).
+
+PhotoFiler is freeware.
+
+________
+
+Features
+________
+
+ * Sprites, JPEGs, DrawFiles and ArtWorks are thumbnailed in the background
+   and displayed in place of the usual file type icon. If you have ImageFS,
+   PhotoFiler will generate thumbnails for all of the formats it supports.
+
+ * Full control over the dithering of thumbnails is provided for Sprites and
+   JPEGs.
+
+ * Pictures which are found to be faulty are shown with a "warning" symbol.
+
+ * Directories can be given customised sprites by merging a sprite into the
+   common sprite pool. Sprites can be provided for the four possible
+   directory states of open/closed and selected/unselected.
+
+ * The pling symbol ("!") can be removed from the start of application names,
+   giving neater looking directory displays. This modification occurs in
+   display only so that sorting orders are not affected.
+
+ * PhotoFiler is a module written in 100% ARM assembler and completely
+   transparent in operation. None of the Filer module's code is modified,
+   and PhotoFiler uses very little memory itself.
+
+_________
+
+Interface
+_________
+
+Icon Bar Icon
+จจจจจจจจจจจจจ
+  SELECT on the icon bar icon opens the Control Panel.
+  MENU opens the icon bar menu.
+
+
+Control Panel
+จจจจจจจจจจจจจ
+The control panel is available by clicking SELECT on the icon bar icon.
+
+  Thumbnails
+  จจจจจจจจจจ
+  Maximum size               Sets the maximum size of thumbnails that will
+                             be generated. See "Sizes" below.
+                             
+  Multitasking               Sets the maximum amount of time PhotoFiler will
+                             use when generating thumbnails. Larger values
+                             will generate thumbnails more quickly, at the
+                             expense of lumpier multitasking.
+
+  Indicate file type         Adds a small file type icon in the bottom left-
+                             hand corner of the thumbnail, if it can.
+
+  Sprites
+  จจจจจจจ
+  Show Sprite thumbnails     When set, sprite files will be thumbnailed.
+
+  Simple dithering           Performs a simple dithering technique on the
+                             thumbnail.
+
+  Application sprites        When set, sprites that are part of applications,
+                             called "!Sprites", "Sprites22", etc. will not
+                             be thumbnailed.
+
+  JPEGs
+  จจจจจ
+  Show JPEG thumbnails       When set, JPEG images will be thumbnailed.
+
+  No dithering               Quickest, but lowest quality, thumbnails.
+
+  Simple dithering           Medium speed, medium quality, thumbnails.
+
+  Error diffusion            Slowest, but highest quality, thumbnails.
+                             (Note that you're unlikely to notice any
+                              great speed or quality difference between
+                              these last two options).
+
+  DrawFiles
+  จจจจจจจจจ
+  Show Draw thumbnails       When set, DrawFiles will be thumbnailed.
+  
+  ArtWorks
+  จจจจจจจจ
+  Show ArtWorks thumbnails   When set, ArtWorks will be thumbnailed.
+  
+  Quality                    Allows you to choose the ArtWorks "WYSIWYG"
+                             setting.
+  
+  ImageFS
+  จจจจจจจ
+  Show ImageFS thumbnails    When set, files convertable by ImageFS will be
+                             thumbnailed.
+                             
+                             Recognising ImageFS file types does incur a
+                             slight speed hit, so you are advised to leave
+                             this option off if you don't use ImageFS.
+
+  Applications
+  จจจจจจจจจจจจ
+  Hide plings                When set, applications will have their initial
+                             pling character ("!") removed from view.
+                               
+  Control panel
+  จจจจจจจจจจจจจ
+  Auto-quit                  When set, the control panel will load and
+                             initialise the module, but not appear on the
+                             desktop. Hold down Ctrl when PhotoFiler
+                             starts to force the control panel to appear.
+
+
+Icon Bar Menu
+จจจจจจจจจจจจจ
+  Quit
+
+    -> Control panel only    Removes PhotoFiler's control panel only, the
+                             PhotoFiler module which does the "real" work
+                             will remain active.
+
+    -> All of PhotoFiler     Removes PhotoFiler completely from memory.
+
+__________
+
+Thumbnails
+__________
+
+Generation
+จจจจจจจจจจ
+PhotoFiler starts generating thumbnails on the fly as soon as you open a
+directory display containing Sprites, JPEGs or DrawFiles.
+
+The first thing you will notice upon opening such a directory is that the
+picture's usual file icon is shown in shaded grey until the thumbnail is
+generated. You will normally only see this icon for a fraction of a second,
+especially on faster machines, as even the largest thumbnails take only a few
+seconds to load and render. Once the thumbnail is ready, it is displayed in
+the place of the icon in the Filer window. Thumbnails are processed in the
+background so you can continue to use the desktop whilst thumbnailing is
+taking place.
+
+Only icons that are visible on screen are "seen" by PhotoFiler. This means
+that if you scroll a directory display to reveal more icons, they will then
+be noticed by PhotoFiler and processed.
+
+
+Sizes
+จจจจจ
+PhotoFiler always attempts to generate the largest size thumbnail it can,
+given the aspect ratio of the picture and the size you can specify in the
+control panel.
+
+The largest thumbnail which will fit in the Filer icon space is 172 by 74 OS
+units, which equates to a maximum of 86 by 37 pixels in a regular square
+pixel mode. Due to the way Filer windows are laid out, any thumbnails bigger
+than that would be displayed incorrectly and obscured by the text of the
+filename.
+
+Thumbnails are always created in the current screen mode so that they can be
+rendered and displayed quickly. However, if you change screen mode the
+existing thumbnails won't be re-generated.
+
+
+Validation
+จจจจจจจจจจ
+All three types of directly supported image are tested for completeness and
+integrity before being rendered. Any file that fails this validation step
+will be shown with a "warning" symbol.
+
+
+Modification
+จจจจจจจจจจจจ
+PhotoFiler watches for changes to files and will re-generate a thumbnail if
+it sees its associated disc file has changed.
+
+
+Limits
+จจจจจจ
+PhotoFiler can handle any number of thumbnails in any number of directory
+displays simultaneously, although things will slow down proportionately with
+the number of directory displays that are active. In normal use, you are
+unlikely to notice this.
+
+
+Sprite Thumbnails
+จจจจจจจจจจจจจจจจจ
+Sprite thumbnails are generated using RISC OS's sprite scaling features.
+
+When the "Application sprites" option is off, PhotoFiler will not generate
+thumbnails for files with the word "Sprites" in their name. This stops most
+sprite files belonging to applications being shown. (Note that this check is
+case-sensitive).
+
+If a sprite has no palette present then the default desktop palette is used.
+This matches the behaviour of RISC OS Paint when its "Use desktop colours"
+option is on.
+
+Only the first sprite of a multiple-sprite file will be shown.
+
+
+JPEG Thumbnails
+จจจจจจจจจจจจจจจ
+The JPEG rendering feature of SpriteExtend 0.99 and later is used to generate
+thumbnails for JPEG images.
+
+The SpriteExtend JPEG rendering calls are quite particular about the files
+that they will render. Images with certain non-standard settings in the file
+header will often be rejected. You may wish to obtain one of the
+jpegtran-based utilities which can "clean" and optimise these JPEG images.
+
+Progressive (sometimes referred to as "interlaced") JPEGs cannot be
+thumbnailed, unless they are first converted to normal JPEGs by using
+jpegtran.
+
+
+DrawFile Thumbnails
+จจจจจจจจจจจจจจจจจจจ
+PhotoFiler uses the DrawFile module, built into RISC OS 3.6 and later, to
+generate thumbnails of DrawFiles.
+
+The DrawFile module performs no anti-aliasing when scaling down, so
+thumbnails may look innacurate with respect to the original file. This is
+especially evident if "thin" lines are used in the DrawFile.
+
+If fonts are used in the DrawFile, then a large font cache will speed things
+up.
+
+
+ArtWorks Thumbnails
+จจจจจจจจจจจจจจจจจจจ
+AWRender 1.34 or later must be present in order for PhotoFiler to render
+ArtWorks thumbnails.
+
+
+ImageFS Thumbnails
+จจจจจจจจจจจจจจจจจจ
+If you have Alternative Publishing's ImageFS software loaded and enabled,
+PhotoFiler will use it to generate thumbnails for all of the file formats it
+supports, including WMFs.
+
+Note that if you don't have ImageFS, you should leave the "Show ImageFS
+thumbnails" off, as it incurs a slight speed hit for ImageFS file types.
+
+________________________
+
+Custom Directory Sprites
+________________________
+
+PhotoFiler can adjust the sprite used by the Filer to represent directories.
+This is done by defining a new sprite for each possible directory icon state
+and merging that sprite into the Wimp sprite pool (using *IconSprites).
+
+                                            Sprite    Small sprite
+                                            จจจจจจ    จจจจจจจจจจจจ
+           Directory closed, unselected    #dirname    sm#dirname
+           Directory closed, selected      $dirname    sm$dirname
+           Directory open,   unselected    %dirname    sm%dirname
+           Directory open,   selected      &dirname    sm&dirname
+
+If no sprite is found for the current sprite state, then the Filer's default
+display will be used. (This behaviour isn't ideal and may be revised in a
+future version to always show the appropriate #dirname sprite).
+
+Note that when a custom directory sprite is in use, the text of the icon will
+not be inverted when selected as usual.
+
+_________________________
+
+Hiding Application Plings
+_________________________
+
+With the "Hide application plings" option selected, the names of applications
+displayed in Filer windows will be adjusted so that their initial pling
+character ("!") is removed.
+
+The advantage of this is that it gives cleaner looking directory displays and
+is potentially less confusing for novices.
+
+The character is only removed from the display of the name, it does not
+affect the physical name of applications on your disc or in any other part of
+the system.
+
+Using this option will not affect the sorting order of directory displays.
+
+_________________________
+
+Notes and Hidden Features
+_________________________
+
+Suppressing PhotoFiler
+จจจจจจจจจจจจจจจจจจจจจจ
+Holding down the Ctrl key when opening a new directory display will stop
+PhotoFiler from processing that directory.
+
+In addition there is a *Command, *PhotoFilerIgnore <wildcarded string> which
+will automatically suppress PhotoFiler for a directory if its path matches
+the given string. For example, the following stops PhotoFiler working on any
+CDFS directory:
+
+                          *PhotoFilerIgnore CDFS:*
+
+The wildcard characters are "*" and "?". It is case sensitive and only works
+for directory displays opened after the command is issued.
+
+
+Sprite Cache Dynamic Area
+จจจจจจจจจจจจจจจจจจจจจจจจจ
+Even if you use the "All of PhotoFiler" option to quit, PhotoFiler will not
+fully remove its "PhotoFiler sprites" dynamic area. This is not a bug.
+
+When PhotoFiler is active it sets the sprite area pointer of each newly
+created directory display to point to its own sprite area. If PhotoFiler is
+removed, these pointers remain in place. Removing the sprite cache area
+whilst these directory displays are still in use would cause a crash, so the
+area is in left in place but reduced in size as much as possible.
+
+If PhotoFiler is later restarted, then it will automatically take over any
+existing sprite cache area.
+
+
+Bugs in RISC OS
+จจจจจจจจจจจจจจจ
+Unfortunately PhotoFiler is affected by a number of faults in RISC OS. They
+are detailed here.
+
+1. There is a bug in both current variants of the SpriteExtend module; the
+   RISC OS module which deals with JPEG images. The bug is three redundant
+   instructions which perform a read from an assumed location in the
+   controlling task's wimpslot. This causes an "abort on data transfer"
+   exception if the calling application has less than 24K of wimpslot.
+
+   Since PhotoFiler is not a wimp task, it has no wimpslot, so calling
+   SpriteExtend to render JPEG images will always fail. PhotoFiler
+   automatically fixes this bug by copying the SpriteExtend module into RAM
+   and disabling the redundant instructions. Where it needs to be applied,
+   this fix takes approximately 75K of memory.
+
+2. There is another bug in RISC OS's own sprite handling code which causes
+   apparently random crashes. PhotoFiler includes a work-around fix for
+   this. The net result of this is that PhotoFiler has to claim at most one
+   page (4K) more sprite memory than it actually needs.
+
+3. And again, there is another bug in SpriteExtend which means that JPEGs
+   which scale to one pixel in either thumbnail dimension will be rejected
+   in order to prevent a machine crash.
+
+___________
+
+Limitations
+___________
+
+ * PhotoFiler is not able to deduce the name of objects whose filenames have
+   been truncated in display using RISC OS 4's "maximum displayed filename
+   width" feature. These files are ignored.
+
+ * Pictures are loaded whole into memory before being rendered, up to a limit
+   of 16Mb. Pictures which are too large to load will be shown with the
+   "warning" icon.
+
+ * If PhotoFiler should run out of memory, then it will start showing
+   thumbnails with the "warning" icon. If memory is in very short supply
+   then PhotoFiler will ignore the icons completely.
+
+_____________
+
+Compatibility
+_____________
+
+RISC OS 3.5
+จจจจจจจจจจจ
+PhotoFiler requires the functionality of two modules which are only present
+in RISC OS 3.6 or later. To use PhotoFiler on RISC OS 3.5, you should obtain
+the archives "drawfile.arc" and "spriteextend.arc" as were available from
+Acorn's FTP site, and install them appropriately into your !Boot sequence.
+
+The SpriteExtend module is supplied ready to be merged into your !Boot
+sequence.
+
+The DrawFile module should be placed in !System, in the directory
+"!System.350.Modules" if you have it or "!System.Modules" otherwise.
+
+________
+
+Versions
+________
+
+2.08 (05 Feb 2008)
+ - PhotoFiler is now once again freeware.
+
+2.07 (15 Apr 2004)
+2.06 (16 Feb 2004)
+ - 32-bit compatible.
+ - Uses WimpSWIVe 0.07.
+ - Updated "wait" icons for RISC OS 5.
+
+2.05 (08 Feb 2003)
+ - Added an adjustment to the ArtWorks error handling from Martin Würthner.
+
+2.04 (15 Jan 2002)
+ - Rendering of ArtWorks thumbnails is now supported.
+
+2.03 (03 Apr 2001)
+ - PhotoFiler can now plot the file type sprite in the bottom left-hand
+   corner of a thumbnail. This will only work where a suitable "small_..."
+   sprite is available in the Wimp sprite pool.
+
+2.01 (18 Jul 2000)
+ - Minor updates.
+ - Corrections to documentation.
+ - Truncated leafnames are now ignored, instead of showing up as an error.
+ - The bounding box wasn't being set when the thumbnail was first made. This
+   meant the directory display could flicker when a thumbnail was refreshed
+   after being generated. Note that directory displays sometimes flicker
+   anyway when ImageFS support is enabled. This is an issue with image filing
+   systems and the Filer.
+
+2.00 (18 May 2000)
+ - First commercial release through Warm Silence Software.
+ - PhotoFiler is now capable of optionally using Alternative Publishing's
+   ImageFS software to generate thumbnails.
+ - Filing system activity is monitored so thumbnails can now be re-generated
+   if the associated file changes.
+ - Thumbnails are now generated in a left-to-right, top-to-bottom order.
+   This is the reverse of previous versions.
+ - Added *PhotoFilerIgnore command, allowing directory displays to be
+   ignored based on a wildcarded string.
+ - PhotoCheck program now fixes RISC OS 4 SpriteExtend.
+ - Multitasking control added.
+ - Maximum size control added.
+ - Optimised.
+
+_______
+
+Credits
+_______
+
+Many thanks to go to Justin Fletcher for his original source upon which this
+program is based and to the brave souls who took part in the testing of
+prerelease versions.
+
+Thanks to Andrew Clover and Andrew Booker for the WimpSWIVe module.
+
+Thanks to Martin Würthner for his work in making the AWRender module function
+when called from SVC mode.
+
+Thanks to Robin Watts and Paul Gardiner of Warm Silence Software.
+
+_________
+
+Copyright
+_________
+
+This software ("PhotoFiler") is copyrighted work of David Thomas, it is
+supplied to you, the user, "as is"; you use this application entirely at your
+own risk. The author and publisher make no warranty as to the fitness of
+this software for any purpose. In no circumstances will the author or
+publisher be liable for any loss arising from the use or inability to use
+this software.
+
+_________________
+
+Contact Addresses
+_________________
+
+If you have any comments, bug reports or suggestions for future versions then
+you can contact dave@davespace.co.uk.
+
+If you have a question, then please check it has not already been answered in
+this documentation before mailing.
+_____________________________________________________________________________
+
