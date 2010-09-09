@@ -1,0 +1,91 @@
+; Symbols.Hdr
+
+        [       :LNOT::DEF:swis__dfn
+        GBLL    swis__dfn
+        ;
+        MACRO
+        SWIDEF  $name,$number
+$name   EQU     $number
+X$name  EQU     $number :OR: &20000
+        MEND
+        ;
+  [ ARTWORKS <> 0
+        SWIDEF	AWRender_DocBounds,		&46082
+        SWIDEF	AWRender_FileInitAddress,	&46080
+        SWIDEF	AWRender_RenderAddress,		&46081
+  ]
+        SWIDEF  ColourTrans_GenerateTable,      &40763
+        SWIDEF  ColourTrans_SelectTable,        &40740
+        SWIDEF  ColourTrans_SetGCOL,            &40743
+        SWIDEF  DrawFile_BBox,                  &45541
+        SWIDEF  DrawFile_Render,                &45540
+        SWIDEF  Filter_DeRegisterPostFilter,    &42643
+        SWIDEF  Filter_DeRegisterPreFilter,     &42642
+        SWIDEF  Filter_RegisterPostFilter,      &42641
+        SWIDEF  Filter_RegisterPreFilter,       &42640
+        SWIDEF  Hourglass_Off,                  &406C1
+        SWIDEF  Hourglass_On,                   &406C0
+        SWIDEF  JPEG_Info,                      &49980
+        SWIDEF  JPEG_PlotScaled,                &49982
+        SWIDEF  OS_Byte,                        &6
+        SWIDEF  OS_ChangeDynamicArea,           &2A
+        SWIDEF  OS_Claim,                       &1F
+        SWIDEF  OS_ConvertCardinal4,            &D8
+        SWIDEF  OS_ConvertHex4,                 &D2
+        SWIDEF  OS_ConvertHex8,                 &D4
+        SWIDEF  OS_DynamicArea,                 &66
+        SWIDEF  OS_File,                        &8
+        SWIDEF  OS_FSControl,                   &29
+        SWIDEF  OS_Heap,                        &1D
+        SWIDEF  OS_Module,                      &1E
+        SWIDEF  OS_NewLine,                     &3
+        SWIDEF  OS_ReadModeVariable,            &35
+        SWIDEF  OS_ReadMonotonicTime,           &42
+        SWIDEF  OS_ReadUnsigned,                &21
+        SWIDEF  OS_ReadVduVariables,            &31
+        SWIDEF  OS_Release,                     &20
+        SWIDEF  OS_SpriteOp,                    &2E
+        SWIDEF  OS_Write0,                      &2
+        SWIDEF  OS_WriteI,                      &100
+        SWIDEF  OS_WriteS,                      &1
+        SWIDEF  Wimp_CreateWindow,              &400C1
+        SWIDEF  Wimp_DeleteWindow,              &400C3
+        SWIDEF  Wimp_ForceRedraw,               &400D1
+        SWIDEF  Wimp_GetWindowInfo,             &400CC
+        SWIDEF  Wimp_PlotIcon,                  &400E2
+        SWIDEF  Wimp_ReadPalette,		&400E5
+        SWIDEF  Wimp_ReadPixTrans,              &400ED
+        SWIDEF  Wimp_ReadSysInfo,               &400F2
+        SWIDEF  Wimp_RedrawWindow,              &400C8
+        SWIDEF  Wimp_RegisterFilter,            &400F5
+        SWIDEF  Wimp_SpriteOp,                  &400E9
+        SWIDEF  Wimp_UpdateWindow,              &400C9
+        ]
+
+Wimp_SWIBase                    EQU     &400C0
+
+Service_StartedFiler            EQU     &4C
+Service_FilerDying              EQU     &4F
+Service_FilterManagerInstalled  EQU     &87
+Service_FilterManagerDying      EQU     &88
+
+UpCallV                         EQU     &1D
+UpCall_MediaNotPresent          EQU     1
+UpCall_MediaNotKnown            EQU     2
+UpCall_ModifyingFile            EQU     3
+UpCall_ModifyingFile_Save       EQU     0
+UpCall_ModifyingFile_SetInfo    EQU     1
+UpCall_ModifyingFile_SetLoad    EQU     2
+UpCall_ModifyingFile_SetExec    EQU     3
+UpCall_ModifyingFile_SetAttr    EQU     4
+UpCall_ModifyingFile_Delete     EQU     6
+UpCall_ModifyingFile_Create     EQU     7
+UpCall_ModifyingFile_Rename     EQU     520
+UpCall_MediaSearchEnd           EQU     4
+
+V_FLAG                          EQU     1<<28
+C_FLAG                          EQU     1<<29
+Z_FLAG                          EQU     1<<30
+N_FLAG                          EQU     1<<31
+
+        END
