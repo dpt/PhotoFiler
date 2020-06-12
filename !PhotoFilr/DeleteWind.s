@@ -20,17 +20,17 @@ wimp_deletewindow_pre
         ; Purpose: Remove all of our associated structures when the Filer
         ;          deletes a display.
 
-        STMFD	r13!, {r0-r1, r6-r8, r14}
+        STMFD   r13!, {r0-r1, r6-r8, r14}
 
         BL      filer_active
-        BNE	exit				; filer is not active
+        BNE     exit                            ; filer is not active
 
         LDR     r1, [r1]                        ; get display window handle
         ADD     r6, r12, #Display_First         ; for later
         LDR     r7, [r12, #Display_First]
 window
         TEQ     r7, #0                          ; end of window list?
-        BEQ	exit				; yes
+        BEQ     exit                            ; yes
 
         LDR     r0, [r7, #Display_Handle]
         TEQ     r0, r1                          ; is it our window?
@@ -59,7 +59,7 @@ nomoreicons
         SWI     XHourglass_Off
 
 exit
-        LDMFD	r13!, {r0-r1, r6-r8, pc}
+        LDMFD   r13!, {r0-r1, r6-r8, pc}
 
 
         END

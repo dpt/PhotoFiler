@@ -48,15 +48,15 @@
         DCD     module_title                    ; title string
         DCD     module_help                     ; help string
         DCD     module_commands                 ; help, command keyword table
-        DCD	0				; SWI base number
-        DCD	0                               ; SWI handler
-        DCD	0                               ; SWI decode table
-        DCD	0				; SWI decode code
-        DCD	0				; MessageTrans file
-        DCD	module_flags			; flags
+        DCD     0                               ; SWI base number
+        DCD     0                               ; SWI handler
+        DCD     0                               ; SWI decode table
+        DCD     0                               ; SWI decode code
+        DCD     0                               ; MessageTrans file
+        DCD     module_flags                    ; flags
 
 module_flags
-	DCD	1				; 32-bit compatible
+        DCD     1                               ; 32-bit compatible
 
 ; ---------------------------------------------------------------------------
 
@@ -230,17 +230,17 @@ module_initialise
         ; V set if error, clear otherwise.
         ;
 
-        STR	r14, [r13, #-4]!	; STMFD	r13!, {r14}
+        STR     r14, [r13, #-4]!        ; STMFD r13!, {r14}
 
-        DBSET	DebugOn :OR: UseTracker
-        DBF	"\fPhotoFiler initialising\n"
+        DBSET   DebugOn :OR: UseTracker
+        DBF     "\fPhotoFiler initialising\n"
 
         ; Check we're not already initialised
         ;
 
         LDR     r2, [r12]
         TEQ     r2, #0
-        BNE	%FT99
+        BNE     %FT99
 
         ; Claim workspace
         ;
@@ -248,7 +248,7 @@ module_initialise
         MOV     r0, #6
         MOV     r3, #sizeof_workspace
         SWI     XOS_Module
-        BVS	%FT99
+        BVS     %FT99
 
         STR     r2, [r12]
         MOV     r12, r2
@@ -273,7 +273,7 @@ module_initialise
         ADD     r3, r12, #4
         STMIA   r3, {r0-r2}
   [ ARTWORKS <> 0
-        MOV	r0, #100			; ArtWorks quality
+        MOV     r0, #100                        ; ArtWorks quality
         STR     r0, [r12, #ArtWorks_Quality]
   ]
 
@@ -288,7 +288,7 @@ module_initialise
   ]
 
 99
-        LDR	pc, [r13], #4		; LDMFD	r13!, {pc}
+        LDR     pc, [r13], #4           ; LDMFD r13!, {pc}
 
 
 module_finalise
@@ -298,14 +298,14 @@ module_finalise
         ; Must preserve mode, interrupt state, R7-R11 and R13.
         ; V set if error, clear otherwise.
         ;
-        STR	r14, [r13, #-4]!	; STMFD	r13!, {r14}
+        STR     r14, [r13, #-4]!        ; STMFD r13!, {r14}
 
         ; Check we're not already finalised
         ;
 
         LDR     r14, [r12]
         TEQ     r14, #0
-        BEQ	%FT99
+        BEQ     %FT99
 
         ; Keep private word address for clearing later
         ;
@@ -338,13 +338,13 @@ module_finalise
         STR     r0, [r3]
 
 99
-        LDR	pc, [r13], #4		; LDMFD	r13!, {pc}
+        LDR     pc, [r13], #4           ; LDMFD r13!, {pc}
 
 
 ; Filters -------------------------------------------------------------------
 
 filters_on
-	STMFD	r13!, {r0-r4, r14}
+        STMFD   r13!, {r0-r4, r14}
 
         ; Determine the Filer's task handle (the subject-to-change way)
         MOV     r0, #18
@@ -395,10 +395,10 @@ filters_on
         ADRL    r4, wimp_ploticon_post
         SWI     XWimp_RegisterFilter
 
-	LDMFD	r13!, {r0-r4, pc}
+        LDMFD   r13!, {r0-r4, pc}
 
 filters_off
-	STMFD	r13!, {r0-r4, r14}
+        STMFD   r13!, {r0-r4, r14}
 
         LDR     r0, wswi
         MOV     r2, r12
@@ -436,7 +436,7 @@ filters_off
         MOV     r4, #&FFFFFFFE
         SWI     XFilter_DeRegisterPostFilter
 
-	LDMFD	r13!, {r0-r4, pc}
+        LDMFD   r13!, {r0-r4, pc}
 
 wswi
         DCB     "WSWI"

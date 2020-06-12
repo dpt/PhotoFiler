@@ -15,7 +15,7 @@ filer_active
         ; Purpose: Is the currently active task the Filer?
         ; Exit:    EQ if it is; NE otherwise
 
-        STR	r14, [r13, #-4]!	; STMFD	r13!, {r14}
+        STR     r14, [r13, #-4]!        ; STMFD r13!, {r14}
 
         ; Get lower 16 bits of current task handle and compare it to the
         ; domain ID. (v. hacky)
@@ -27,7 +27,7 @@ filer_active
         MOV     r14, r14, LSR #16
         TEQ     r0, r14
 
-        LDR	pc, [r13], #4		; LDMFD	r13!, {pc}
+        LDR     pc, [r13], #4           ; LDMFD r13!, {pc}
 
 
         END

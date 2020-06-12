@@ -14,14 +14,14 @@ strcpy
         ; Entry:   R1 -> source
         ;          R2 -> destination
 
-        STMFD	r13!, {r1, r2, r14}
+        STMFD   r13!, {r1, r2, r14}
 00
         LDRB    r14, [r1], #1
         CMP     r14, #' '
         MOVCC   r14, #0
         STRB    r14, [r2], #1
         BCS     %BT00
-        LDMFD	r13!, {r1, r2, pc}
+        LDMFD   r13!, {r1, r2, pc}
 
 
 strncpy
@@ -65,7 +65,7 @@ stricmp
 
         CMP     r3, #' '
         CMPLT   r4, #' '
-        BLT	%FT10				; equal
+        BLT     %FT10                           ; equal
 
         TEQ     r3, r4
         BEQ     %BT00
@@ -73,8 +73,8 @@ stricmp
         LDMFD   r13!, {r1-r4, pc}               ; ne, return with flags
 
 10
-	TEQ	r0, r0				; set Z => EQ
-	LDMFD   r13!, {r1-r4, pc}
+        TEQ     r0, r0                          ; set Z => EQ
+        LDMFD   r13!, {r1-r4, pc}
 
 
 strin
@@ -88,11 +88,11 @@ strin
 
         LDRB    r5, [r2], #1
         CMP     r5, #' '
-        BLT     strin_exit_lt   	; substring is empty
+        BLT     strin_exit_lt           ; substring is empty
 
-        CMP	r5, #'A'		; lowercase R5
-        RSBGES	r14, r5, #'Z'
-        ADDGE	r5, r5, #' '
+        CMP     r5, #'A'                ; lowercase R5
+        RSBGES  r14, r5, #'Z'
+        ADDGE   r5, r5, #' '
 
         ADD     r1, r1, r3              ; set start position
         SUB     r3, r1, r3              ; compensate counter
@@ -103,9 +103,9 @@ strin_exit_lt
         MOVLT   r0, #-1
         LDMLTFD r13!, {r1-r9, pc}       ; substring not found
 
-        CMP	r4, #'A'		; lowercase R4
-        RSBGES	r14, r4, #'Z'
-        ADDGE	r4, r4, #' '
+        CMP     r4, #'A'                ; lowercase R4
+        RSBGES  r14, r4, #'Z'
+        ADDGE   r4, r4, #' '
 
         TEQ     r4, r5
         BNE     strin_loop
@@ -120,16 +120,16 @@ strin_matched
         SUBLT   r0, r0, r3
         LDMLTFD r13!, {r1-r9, pc}
 
-        CMP	r8, #'A'		; lowercase R8
-        RSBGES	r14, r8, #'Z'
-        ADDGE	r8, r8, #' '
+        CMP     r8, #'A'                ; lowercase R8
+        RSBGES  r14, r8, #'Z'
+        ADDGE   r8, r8, #' '
 
-        CMP	r9, #'A'		; lowercase R9
-        RSBGES	r14, r9, #'Z'
-        ADDGE	r9, r9, #' '
+        CMP     r9, #'A'                ; lowercase R9
+        RSBGES  r14, r9, #'Z'
+        ADDGE   r9, r9, #' '
 
         TEQ     r8, r9
-        BEQ     strin_matched   	; keep going
+        BEQ     strin_matched           ; keep going
         BNE     strin_loop              ; substring match failed
 
 
@@ -146,7 +146,7 @@ strmatch
 
         STMFD   r13!, {r1-r4, r14}
         BL      a
-        LDMFD   r13!, {r1-r4, pc} 	; return with new flags
+        LDMFD   r13!, {r1-r4, pc}       ; return with new flags
 
 a
         LDRB    r3, [r1], #1
@@ -165,7 +165,7 @@ c
         TEQ     r3, r4
         TEQNE   r3, #'?'
         BNE     c
-        B       strmatch        	; recurse
+        B       strmatch                ; recurse
 d
         LDRB    r4, [r2], #1
         TEQ     r4, #0
@@ -173,15 +173,15 @@ d
         TEQ     r3, #0
         BNE     g
 e
-	TEQ	r0, r0			; match, set Z
-        MOV     pc, r14         	; return with new flags
+        TEQ     r0, r0                  ; match, set Z
+        MOV     pc, r14                 ; return with new flags
 f
         TEQ     r3, r4
         TEQNE   r3, #'?'
         BEQ     a
 g
-        TEQ	pc, #0			; no match, clear Z
-        MOV     pc, r14         	; return with new flags
+        TEQ     pc, #0                  ; no match, clear Z
+        MOV     pc, r14                 ; return with new flags
 
 
         END

@@ -111,7 +111,7 @@ upcall_handler_modifying_file
         ; R1 -> object name
         ; R6 -> special field (or 0)
 
-        STMFD	r13!, {r0-r8, r14}
+        STMFD   r13!, {r0-r8, r14}
 
         MOV     r6, r1
 
@@ -120,7 +120,7 @@ upcall_handler_modifying_file
         ADD     r2, r12, #Upcall_Filename
         MOV     r3, #256
         SWI     XOS_FSControl
-        LDMVSFD	r13!, {r0-r8, pc}               ; error - exit
+        LDMVSFD r13!, {r0-r8, pc}               ; error - exit
 
         SUB     r2, r2, #1
 0
@@ -144,7 +144,7 @@ upcall_handler_modifying_file
         ; R3 -> char before leaf, or 0
 
         TEQ     r3, #0                          ; did we find a leaf?
-        LDMEQFD	r13!, {r0-r8, pc}               ; no - exit
+        LDMEQFD r13!, {r0-r8, pc}               ; no - exit
 
         MOV     r0, #0
         STRB    r0, [r3], #1                    ; terminate path
@@ -160,7 +160,7 @@ upcall_handler_modifying_file
         LDR     r7, [r12, #Display_First]
 each_display
         TEQ     r7, #0
-        LDMEQFD	r13!, {r0-r8, pc}               ; not found - exit
+        LDMEQFD r13!, {r0-r8, pc}               ; not found - exit
 
         ADD     r1, r7, #Display_Path
         ADD     r2, r12, #Upcall_Filename       ; path
@@ -177,14 +177,14 @@ each_display
         ;
 
   [ HASHING <> 0
-  	; ### icon may be in one of n chains
+        ; ### icon may be in one of n chains
   ]
 
         MOV     r0, #0
         LDR     r8, [r7, #Display_FirstIcon]
 each_icon
         TEQ     r8, #0
-        LDMEQFD	r13!, {r0-r8, pc}               ; not found - exit
+        LDMEQFD r13!, {r0-r8, pc}               ; not found - exit
 
         ADD     r1, r8, #Icon_Leafname
         MOV     r2, r3                          ; leaf
@@ -206,13 +206,13 @@ each_icon
         BL      heap_release                    ; needs R0
         BLVC    delete_thumbnail                ; needs R8
 
-;       LDMVCFD	r13!, {r0-r8, pc}
+;       LDMVCFD r13!, {r0-r8, pc}
 ;
 ;       SWI     1
 ;       DCB     "there was han herror",13,10,0
 ;       ALIGN
 
-        LDMFD	r13!, {r0-r8, pc}
+        LDMFD   r13!, {r0-r8, pc}
 
   ]
 
