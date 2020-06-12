@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -20,27 +21,27 @@
 upcall_on
         ; Entry: R12 -> workspace
 
-        STMFD   r13!, {r0-r2, r14}
+        Push    "r0-r2, r14"
 
         MOV     r0, #UpCallV
         ADR     r1, upcall_handler
         MOV     r2, r12
         SWI     XOS_Claim
 
-        LDMFD   r13!, {r0-r2, pc}
+        Pull    "r0-r2, pc"
 
 
 upcall_off
         ; Entry: R12 -> workspace
 
-        STMFD   r13!, {r0-r2, r14}
+        Push    "r0-r2, r14"
 
         MOV     r0, #UpCallV
         ADR     r1, upcall_handler
         MOV     r2, r12
         SWI     XOS_Release
 
-        LDMFD   r13!, {r0-r2, pc}
+        Pull    "r0-r2, pc"
 
 
 upcall_handler
@@ -62,7 +63,7 @@ upcall_handler
         ; fall through
 
 upcall_handler_media_search
-        STMFD   r13!, {r14}
+        Push    r14
 
         LDR     r14, [r12, #Flags]
         ORR     r14, r14, #Flag_MediaSearch
@@ -72,10 +73,10 @@ upcall_handler_media_search
         ;DCB    4, 30, "meeja search start", 0
         ;ALIGN
 
-        LDMFD   r13!, {pc}
+        Pull    pc
 
 upcall_handler_media_search_end
-        STMFD   r13!, {r14}
+        Push    r14
 
         LDR     r14, [r12, #Flags]
         BIC     r14, r14, #Flag_MediaSearch
@@ -85,7 +86,7 @@ upcall_handler_media_search_end
         ;DCB    4, 30, "meeja search end", 0
         ;ALIGN
 
-        LDMFD   r13!, {pc}
+        Pull    pc
 
   |
 
@@ -111,7 +112,7 @@ upcall_handler_modifying_file
         ; R1 -> object name
         ; R6 -> special field (or 0)
 
-        STMFD   r13!, {r0-r8, r14}
+        Push    "r0-r8, r14"
 
         MOV     r6, r1
 
@@ -120,7 +121,7 @@ upcall_handler_modifying_file
         ADD     r2, r12, #Upcall_Filename
         MOV     r3, #256
         SWI     XOS_FSControl
-        LDMVSFD r13!, {r0-r8, pc}               ; error - exit
+        Pull    "r0-r8, pc", VS                 ; error - exit
 
         SUB     r2, r2, #1
 0
@@ -144,7 +145,7 @@ upcall_handler_modifying_file
         ; R3 -> char before leaf, or 0
 
         TEQ     r3, #0                          ; did we find a leaf?
-        LDMEQFD r13!, {r0-r8, pc}               ; no - exit
+        Pull    "r0-r8, pc", EQ                 ; no - exit
 
         MOV     r0, #0
         STRB    r0, [r3], #1                    ; terminate path
@@ -160,7 +161,7 @@ upcall_handler_modifying_file
         LDR     r7, [r12, #Display_First]
 each_display
         TEQ     r7, #0
-        LDMEQFD r13!, {r0-r8, pc}               ; not found - exit
+        Pull    "r0-r8, pc", EQ                 ; not found - exit
 
         ADD     r1, r7, #Display_Path
         ADD     r2, r12, #Upcall_Filename       ; path
@@ -184,7 +185,7 @@ each_display
         LDR     r8, [r7, #Display_FirstIcon]
 each_icon
         TEQ     r8, #0
-        LDMEQFD r13!, {r0-r8, pc}               ; not found - exit
+        Pull    "r0-r8, pc", EQ                 ; not found - exit
 
         ADD     r1, r8, #Icon_Leafname
         MOV     r2, r3                          ; leaf
@@ -206,13 +207,13 @@ each_icon
         BL      heap_release                    ; needs R0
         BLVC    delete_thumbnail                ; needs R8
 
-;       LDMVCFD r13!, {r0-r8, pc}
+;       Pull    "r0-r8, pc", VC
 ;
 ;       SWI     1
 ;       DCB     "there was han herror",13,10,0
 ;       ALIGN
 
-        LDMFD   r13!, {r0-r8, pc}
+        Pull    "r0-r8, pc"
 
   ]
 

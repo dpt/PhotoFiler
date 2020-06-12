@@ -1,5 +1,7 @@
 ; String operations
 
+        GET     Hdr.Macros
+
         EXPORT  strcpy
         EXPORT  strncpy
         EXPORT  stricmp
@@ -14,14 +16,14 @@ strcpy
         ; Entry:   R1 -> source
         ;          R2 -> destination
 
-        STMFD   r13!, {r1, r2, r14}
+        Push    "r1, r2, r14"
 00
         LDRB    r14, [r1], #1
         CMP     r14, #' '
         MOVCC   r14, #0
         STRB    r14, [r2], #1
         BCS     %BT00
-        LDMFD   r13!, {r1, r2, pc}
+        Pull    "r1, r2, pc"
 
 
 strncpy
@@ -30,7 +32,7 @@ strncpy
         ;          R2 -> destination
         ;          R3 = maximum number of characters to copy (exc.terminator)
 
-        STMFD   r13!, {r1-r3, r14}
+        Push    "r1-r3, r14"
         ADD     r3, r1, r3
 00
         CMP     r1, r3                          ; exceeded length?
@@ -40,7 +42,7 @@ strncpy
         MOVLT   r14, #0
         STRB    r14, [r2], #1
         BGE     %BT00
-        LDMFD   r13!, {r1-r3, pc}
+        Pull    "r1-r3, pc"
 
 
 stricmp
@@ -49,7 +51,7 @@ stricmp
         ;          R2 -> string 1
         ; Exit:    EQ if strings are equal; NE otherwise
 
-        STMFD   r13!, {r1-r4, r14}
+        Push    "r1-r4, r14"
 00
         LDRB    r3, [r1], #1
 
@@ -70,11 +72,11 @@ stricmp
         TEQ     r3, r4
         BEQ     %BT00
 
-        LDMFD   r13!, {r1-r4, pc}               ; ne, return with flags
+        Pull    "r1-r4, pc"               ; ne, return with flags
 
 10
         TEQ     r0, r0                          ; set Z => EQ
-        LDMFD   r13!, {r1-r4, pc}
+        Pull    "r1-r4, pc"
 
 
 strin
@@ -84,7 +86,7 @@ strin
         ;          R3 = start position
         ; Exit:    R0 = length
 
-        STMFD   r13!, {r1-r9, r14}
+        Push    "r1-r9, r14"
 
         LDRB    r5, [r2], #1
         CMP     r5, #' '
@@ -101,7 +103,7 @@ strin_loop
         CMP     r4, #' '
 strin_exit_lt
         MOVLT   r0, #-1
-        LDMLTFD r13!, {r1-r9, pc}       ; substring not found
+        Pull    "r1-r9, pc", LT         ; substring not found
 
         CMP     r4, #'A'                ; lowercase R4
         RSBGES  r14, r4, #'Z'
@@ -118,7 +120,7 @@ strin_matched
         CMP     r9, #' '
         SUBLT   r0, r1, #1              ; compensate for earlier post-inc
         SUBLT   r0, r0, r3
-        LDMLTFD r13!, {r1-r9, pc}
+        Pull    "r1-r9, pc", LT
 
         CMP     r8, #'A'                ; lowercase R8
         RSBGES  r14, r8, #'Z'
@@ -144,9 +146,9 @@ strmatch
         ;
         ; ### NOT EVEN SURE THIS WORKS!
 
-        STMFD   r13!, {r1-r4, r14}
+        Push    "r1-r4, r14"
         BL      a
-        LDMFD   r13!, {r1-r4, pc}       ; return with new flags
+        Pull    "r1-r4, pc"     ; return with new flags
 
 a
         LDRB    r3, [r1], #1

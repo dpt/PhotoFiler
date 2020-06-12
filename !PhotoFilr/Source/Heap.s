@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -21,7 +22,7 @@
 heap_create
         ; Purpose: Creates a heap in a dynamic area.
 
-        STMFD   r13!, {r0-r8, r14}
+        Push    "r0-r8, r14"
 
         MOV     r0, #0                          ; create dynamic area
         MOV     r1, #-1                         ; allocate area number
@@ -44,7 +45,7 @@ heap_create
         SWI     XOS_Heap
 
 exit
-        LDMFD   r13!, {r0-r8, pc}
+        Pull    "r0-r8, pc"
 
 heap_name
         DCB     "PhotoFiler workspace", 0
@@ -54,13 +55,13 @@ heap_name
 heap_delete
         ; Purpose: Deletes the heap.
 
-        STMFD   r13!, {r0-r1, r14}
+        Push    "r0-r1, r14"
 
         MOV     r0, #1                          ; delete dynamic area
         LDR     r1, [r12, #Heap_Handle]
         SWI     XOS_DynamicArea
 
-        LDMFD   r13!, {r0-r1, pc}
+        Pull    "r0-r1, pc"
 
 
 heap_claim
@@ -68,7 +69,7 @@ heap_claim
         ; Entry:   R0 = required size (bytes)
         ; Exit:    R0 = pointer to block, or VS if claim failed
 
-        STMFD   r13!, {r1-r4, r14}
+        Push    "r1-r4, r14"
 
         DBF     "heap_claim(%0w)\n"
 
@@ -103,7 +104,7 @@ heap_claim_failed
         MSR     cpsr_f, #1<<28                  ; set V
 
 99
-        LDMFD   r13!, {r1-r4, pc}
+        Pull    "r1-r4, pc"
 
 
 heap_resize
@@ -112,7 +113,7 @@ heap_resize
         ;          R1 = size increase (+ve) or decrease (-ve)
         ; Exit:    R0 = pointer to (possibly moved) block
 
-        STMFD   r13!, {r1-r5, r14}
+        Push    "r1-r5, r14"
 
         DBF     "heap_resize(%0w, %1w)\n"
 
@@ -175,14 +176,14 @@ heap_resize_shrink
 
         DBF     "EXIT heap_resize\n"
 
-        LDMFD   r13!, {r1-r5, pc}
+        Pull    "r1-r5, pc"
 
 
 heap_release
         ; Purpose: Releases a block of memory from the heap.
         ; Entry:   R0 = pointer to block
 
-        STMFD   r13!, {r0-r2, r14}
+        Push    "r0-r2, r14"
 
         BL      shrink_need
 
@@ -191,11 +192,11 @@ heap_release
         MOV     r0, #3                          ; release heap block
         SWI     XOS_Heap
 
-        LDMFD   r13!, {r0-r2, pc}
+        Pull    "r0-r2, pc"
 
 
 heap_shrink
-        STMFD   r13!, {r0-r3, r14}
+        Push    "r0-r3, r14"
 
         ; OS_Heap's describe reason code causes corruption! :-(
 
@@ -215,7 +216,7 @@ heap_shrink
         MOV     r0, #5                          ; change size of heap
         SWI     XOS_Heap
 
-        LDMFD   r13!, {r0-r3, pc}
+        Pull    "r0-r3, pc"
 
 
         END

@@ -1,12 +1,13 @@
 ; ---------------------------------------------------------------------------
 ;    Name: PhotoFiler
 ; Purpose: Allows the Filer to thumbnail images, plus other bits
-;  Author: © David Thomas, 1998-2004. Based on JFFilerPro, © Justin Fletcher.
-;    Date: 2.08 (05 Feb 2008)
+;  Author: © David Thomas, 1998-2020. Based on JFFilerPro, © Justin Fletcher.
+;    Date: 2.10 (12 Jun 2020)
 ; ---------------------------------------------------------------------------
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -64,8 +65,8 @@ module_title
         DCB     "PhotoFiler", 0
 
 module_help
-        DCB     "PhotoFiler", 9, "2.08 (05 Feb 2008)"
-        DCB     " by David Thomas, © 1998-2008", 0
+        DCB     "PhotoFiler", 9, "2.10 (12 Jun 2020)"
+        DCB     " © David Thomas, 1998-2020", 0
         ALIGN
 
 ; ---------------------------------------------------------------------------
@@ -99,13 +100,13 @@ module_commands
 
   [ DUMP_COMMAND <> 0
 command_show
-        STMFD   r13!, {r7-r8, r14}
+        Push    "r7-r8, r14"
         LDR     r12, [r12]
         SWI     OS_WriteI + 4
         LDR     r7, [r12, #Display_First]
 show_workspace_winloop
         TEQ     r7, #0
-        LDMEQFD r13!, {r7-r8, pc}
+        Pull    "r7-r8, pc", EQ
         ADD     r0, r7, #Display_Path           ; directory path
         SWI     OS_Write0
         SWI     OS_WriteI + ','
@@ -138,12 +139,12 @@ show_workspace_iconloop
         B       show_workspace_iconloop
 
 show_r0
-        STMFD   r13!, {r0-r2, r14}
+        Push    "r0-r2, r14"
         ADD     r1, r12, #Scratch
         MOV     r2, #12
         SWI     XOS_ConvertHex8
         SWI     OS_Write0
-        LDMFD   r13!, {r0-r2, pc}
+        Pull    "r0-r2, pc"
 
 show_workspace_help
         DCB     "*PhotoFilerShow displays the contents of PhotoFiler‘s works"
@@ -154,7 +155,7 @@ show_workspace_syntax
   ]
 
 command_fsreject
-        STMFD   r13!, {r14}
+        Push    "r14"
 
         LDR     r12, [r12]
 
@@ -163,7 +164,7 @@ command_fsreject
         MOV     r0, #6                          ; claim workspace
         MOV     r3, #sizeof_fsreject
         SWI     XOS_Module
-        LDMVSFD r13!, {pc}
+        Pull    "pc", VS
 
         LDR     r14, [r12, #FSReject_First]     ; link into start of chain
         STR     r14, [r2, #FSReject_Next]
@@ -173,7 +174,7 @@ command_fsreject
         ADD     r2, r2, #FSReject_Wildcard
         BL      strcpy
 
-        LDMFD   r13!, {pc}
+        Pull    "pc"
 
 fsreject_help
         DCB     "*PhotoFilerIgnore adds to the list of directories not to th"
@@ -213,13 +214,13 @@ module_service_entry
         TEQ     r1, #Service_FilerDying
         TEQNE   r1, #Service_FilterManagerDying
         BEQ     %F0
-        STMFD   r13!, {r0, r2-r8, r14}
+        Push    "r0, r2-r8, r14"
         BL      module_initialise
-        LDMFD   r13!, {r0, r2-r8, pc}
+        Pull    "r0, r2-r8, pc"
 0
-        STMFD   r13!, {r0, r2-r8, r14}
+        Push    "r0, r2-r8, r14"
         BL      module_finalise
-        LDMFD   r13!, {r0, r2-r8, pc}
+        Pull    "r0, r2-r8, pc"
 
 
 module_initialise
@@ -230,7 +231,7 @@ module_initialise
         ; V set if error, clear otherwise.
         ;
 
-        STR     r14, [r13, #-4]!        ; STMFD r13!, {r14}
+        Push "r14"
 
         DBSET   DebugOn :OR: UseTracker
         DBF     "\fPhotoFiler initialising\n"
@@ -288,7 +289,7 @@ module_initialise
   ]
 
 99
-        LDR     pc, [r13], #4           ; LDMFD r13!, {pc}
+        Pull pc
 
 
 module_finalise
@@ -298,7 +299,7 @@ module_finalise
         ; Must preserve mode, interrupt state, R7-R11 and R13.
         ; V set if error, clear otherwise.
         ;
-        STR     r14, [r13, #-4]!        ; STMFD r13!, {r14}
+        Push    "r14"
 
         ; Check we're not already finalised
         ;
@@ -338,13 +339,13 @@ module_finalise
         STR     r0, [r3]
 
 99
-        LDR     pc, [r13], #4           ; LDMFD r13!, {pc}
+        Pull    "pc"
 
 
 ; Filters -------------------------------------------------------------------
 
 filters_on
-        STMFD   r13!, {r0-r4, r14}
+        Push    "r0-r4, r14"
 
         ; Determine the Filer's task handle (the subject-to-change way)
         MOV     r0, #18
@@ -395,10 +396,10 @@ filters_on
         ADRL    r4, wimp_ploticon_post
         SWI     XWimp_RegisterFilter
 
-        LDMFD   r13!, {r0-r4, pc}
+        Pull    "r0-r4, pc"
 
 filters_off
-        STMFD   r13!, {r0-r4, r14}
+        Push    "r0-r4, r14"
 
         LDR     r0, wswi
         MOV     r2, r12
@@ -436,7 +437,7 @@ filters_off
         MOV     r4, #&FFFFFFFE
         SWI     XFilter_DeRegisterPostFilter
 
-        LDMFD   r13!, {r0-r4, pc}
+        Pull    "r0-r4, pc"
 
 wswi
         DCB     "WSWI"

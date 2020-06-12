@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -14,12 +15,12 @@
 
 wimp_redrawwindow_pre
 wimp_updatewindow_pre
-        STR     r14, [r13, #-4]!                ; STMFD r13!, {r14}
+        Push    r14
 
         LDR     r14, [r1]                       ; update the current
         STR     r14, [r12, #Window_Block]       ;  display handle
 
-        LDR     pc, [r13], #4                   ; LDMFD r13!, {pc}
+        Pull    pc
 
 
         END

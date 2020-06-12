@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -23,7 +24,7 @@
         ;
 
 wimp_prefilter
-        STR     r14, [r13, #-4]!                ; STMFD r13!, {r14}
+        Push    r14
 
         ; Enable null polls as required for the post filter
 
@@ -38,7 +39,7 @@ wimp_prefilter
         TST     r14, #Flag_ShrinkHeaps
         BLNE    shrink
 
-        LDR     pc, [r13], #4                   ; LDMFD r13!, {pc}
+        Pull    pc
 
 
         ; shrink
@@ -47,12 +48,12 @@ wimp_prefilter
         ;
 
 shrink
-        STMFD   r13!, {r0, r14}
+        Push    "r0, r14"
 
         SWI     XOS_ReadMonotonicTime
         LDR     r14, [r12, #ShrinkTime]
         CMP     r0, r14                         ; none needed if (unsigned)
-        LDMCCFD r13!, {r0, pc}                  ; less than.
+        Pull    "r0, pc", CC                    ; less than.
 
         BL      sprcache_shrink
         BL      heap_shrink
@@ -61,7 +62,7 @@ shrink
         BIC     r0, r0, #Flag_ShrinkHeaps
         STR     r0, [r12, #Flags]
 
-        LDMFD   r13!, {r0, pc}
+        Pull    "r0, pc"
 
 
         ; shrink_need
@@ -72,7 +73,7 @@ shrink
         ;
 
 shrink_need
-        STMFD   r13!, {r0, r14}
+        Push    "r0, r14"
 
         SWI     XOS_ReadMonotonicTime           ; shrink in one second
         ADD     r0, r0, #100
@@ -82,7 +83,7 @@ shrink_need
         ORR     r0, r0, #Flag_ShrinkHeaps
         STR     r0, [r12, #Flags]
 
-        LDMFD   r13!, {r0, pc}
+        Pull    "r0, pc"
 
 
         ; wimp_postfilter
@@ -93,7 +94,7 @@ shrink_need
         ;
 
 wimp_postfilter
-        STMFD   r13!, {r0-r8, r14}
+        Push    "r0-r8, r14"
 
         LDR     r14, [r12, #Flags]
         TST     r14, #Flag_RefreshAll
@@ -173,7 +174,7 @@ postfilter_exit                                 ; all windows done
         STR     r14, [r12, #Flags]
 
 exit
-        LDMFD   r13!, {r0-r8, pc}               ; exit with V clear
+        Pull    "r0-r8, pc"                     ; exit with V clear
 
 
         END

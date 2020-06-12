@@ -1,0 +1,21 @@
+Package: PhotoFiler
+Version: 2.10-1
+Section: Desktop
+Priority: Optional
+Maintainer: David Thomas <dave@davespace.co.uk>
+Standards-Version: 0.6.0
+Environment: arm
+Licence: Free
+Description: Picture thumbnailing extension for the Filer
+ PhotoFiler adds "thumbnailing" of pictures to the RISC OS Filer.
+ .
+ With PhotoFiler loaded, file type icons are replaced with a miniature version of the respective picture. This is useful for organising collections of pictures, as it enables you to rapidly identify the contents of a file simply by looking at its icon.
+ .
+ In addition to thumbnailing, PhotoFiler provides additional controls over the presentation of icons in directory displays. You can define your own icons for directories which will be used instead of the usual directory sprites. This is ideal for providing a graphic representation of a directory's purpose.
+ .
+ PhotoFiler also attempts to address a long-standing quirk ­ that of the pling ("!") character in front of application names. These can hidden from view in directory viewers, giving neater looking directory displays.
+ .
+ PhotoFiler requires RISC OS 3.6 or later. RISC OS 3.5 is supported, if the SpriteExtend 0.99 and DrawFile 1.30 modules are available (see the section "Compatibility" below).
+ .
+ PhotoFiler is freeware.
+Homepage: http://www.davespace.co.uk/risc.os/photofiler.html

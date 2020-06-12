@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -23,7 +24,7 @@ sprcache_create
         ; we search for a previous incarnation's old sprite cache and use
         ; that if available.
 
-        STMFD   r13!, {r0-r8, r14}
+        Push    "r0-r8, r14"
 
         ; Look for an exisiting sprite cache area
         MOV     r1, #-1                         ; start
@@ -57,7 +58,7 @@ sprcache_create_new
         MOV     r7, #0                          ; wksp for handler
         ADR     r8, sprcache_name               ; name of area
         SWI     XOS_DynamicArea
-        LDMVSFD r13!, {r0-r8, pc}
+        Pull    "r0-r8, pc", VS
 
 sprcache_create_store
 
@@ -69,7 +70,7 @@ sprcache_create_store
         MOV     r0, r3
         BL      clearcache
 
-        LDMFD   r13!, {r0-r8, pc}
+        Pull    "r0-r8, pc"
 
 sprcache_name
         DCB     "PhotoFiler sprites", 0
@@ -86,7 +87,7 @@ sprcache_delete
         ; For this reason, the dynamic area is not deleted, but resized to
         ; 4K and cleared.
 
-        STMFD	r13!, {r0-r1, r14}
+        Push    "r0-r1, r14"
 
         ; Resize sprite cache to 4K
         LDR     r0, [r12, #Sprites_Base]
@@ -94,25 +95,25 @@ sprcache_delete
         SUB     r1, r1, #1<<12
         RSB     r1, r1, #0
         BL      sprcache_resize
-        LDMVSFD	r13!, {r0-r1, pc}
+        Pull    "r0-r1, pc", VS
 
         ; Clear sprite cache area
         ; R0 -> base
         BL      clearcache
 
-        LDMFD	r13!, {r0-r1, pc}
+        Pull    "r0-r1, pc"
 
 
 sprcache_resize
         ; Purpose: Change the size of the sprite cache
         ; Entry:   R1 = size change (signed)
 
-        STMFD	r13!, {r0-r2, r14}
+        Push    "r0-r2, r14"
 
         LDR     r0, [r12, #Sprites_Handle]
         MOV     r2, r1                          ; preserve size change
         SWI     XOS_ChangeDynamicArea
-        LDMVSFD	r13!, {r0-r2, pc}
+        Pull    "r0-r2, pc", VS
 
         LDR     r0, [r12, #Sprites_Base]
         CMP     r2, #0                          ; adjust the size change
@@ -121,11 +122,11 @@ sprcache_resize
         ADDNE   r2, r2, r1
         STRNE   r2, [r0, #0]
 
-        LDMFD	r13!, {r0-r2, pc}
+        Pull    "r0-r2, pc"
 
 
 sprcache_shrink
-        STMFD	r13!, {r0-r1, r14}
+        Push    "r0-r1, r14"
 
         LDR     r1, [r12, #Sprites_Base]
         LDR     r0, [r1, #12]                   ; first free word
@@ -135,11 +136,11 @@ sprcache_shrink
         CMP     r1, #-4096                      ; if there's one page free,
         BLLE    sprcache_resize                 ;  then shrink
 
-        LDMFD	r13!, {r0-r1, pc}
+        Pull    "r0-r1, pc"
 
 
 clearcache
-        STMFD	r13!, {r0-r3, r14}
+        Push    "r0-r3, r14"
 
         MOV     r1, #1<<12                      ; size of area - 4Kb
         MOV     r2, #0
@@ -147,7 +148,7 @@ clearcache
         MOV     r14, #16
         STMIA   r0, {r1-r3, r14}
 
-        LDMFD	r13!, {r0-r3, pc}
+        Pull    "r0-r3, pc"
 
 
         END

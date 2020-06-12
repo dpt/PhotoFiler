@@ -1,0 +1,71 @@
+; Macros.Hdr
+
+; Pinched from RISC OS sources.
+
+; **************************************************
+; ***  SETV - Set overflow flag - will set NzcV  ***
+; **************************************************
+        MACRO
+$label  SETV
+$label  CMP     pc, #&80000000          ; SETV in 26 bit modes
+        MSR     CPSR_f, #N_FLAG+V_FLAG  ; ARMv3+ does SETV, NOP on ARMv2
+        MEND
+
+; **************************************************
+; *** CLRV - Clear overflow flag - will set nzCv ***
+; **************************************************
+        MACRO
+$label  CLRV
+$label  CMP     pc, #0                  ; CLRV in 26 bit modes
+        MSR     CPSR_f, #C_FLAG         ; ARMv3+ does CLRV, NOP on ARMv2
+        MEND
+
+; *****************************************
+; ***  Pull registers given in reglist  ***
+; *****************************************
+        MACRO
+$label  Pull    $reglist, $cond, $hat
+        ; loop to find "-" or "," in reglist - if
+        ; not we can optimise a single-register
+        ; load to be faster on SA, ARM9.
+        ; fails (loudly) if RLIST directive in use
+        LCLS   temps
+        LCLL   onereg
+temps   SETS   "$reglist"
+onereg  SETL   "$hat" = ""
+        WHILE  onereg :LAND: :LEN: temps > 0
+        [ temps :LEFT: 1 = "," :LOR: temps :LEFT: 1 = "-"
+onereg  SETL   {FALSE}
+        ]
+temps   SETS   temps :RIGHT: (:LEN: temps - 1)
+        WEND
+        [ onereg
+$label  LDR$cond $reglist, [r13], #4
+        |
+$label  LDM$cond.FD r13!, {$reglist}$hat
+        ]
+        MEND
+
+; *****************************************
+; ***  Push registers given in reglist  ***
+; *****************************************
+        MACRO
+$label  Push   $reglist, $cond
+        LCLS   temps
+        LCLL   onereg
+temps   SETS   "$reglist"
+onereg  SETL   {TRUE}
+        WHILE  onereg :LAND: :LEN: temps > 0
+        [ temps :LEFT: 1 = "," :LOR: temps :LEFT: 1 = "-"
+onereg  SETL   {FALSE}
+        ]
+temps   SETS   temps :RIGHT: (:LEN: temps - 1)
+        WEND
+        [ onereg
+$label  STR$cond $reglist, [r13, #-4]!
+        |
+$label  STM$cond.FD r13!, {$reglist}
+        ]
+        MEND
+
+        END

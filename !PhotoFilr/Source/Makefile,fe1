@@ -8,8 +8,12 @@ src=o.PhotoFiler o.CreateWind o.DeleteWind o.Displays o.Divide o.Heap o.Icons o.
 
 .s.o:;	objasm $(objasmflags) -from $< -to $@
 
-@.PhotoFiler: $(src)
+@.^.PhotoFiler: $(src)
         link $(linkflags) $(src)
         settype $(settypeflags) ffa
+
+clean:
+	wipe @.o.* ~CFR~V
+        wipe @.^.PhotoFiler ~CFR~V
 
 # Dynamic dependencies:

@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -20,7 +21,7 @@ wimp_deletewindow_pre
         ; Purpose: Remove all of our associated structures when the Filer
         ;          deletes a display.
 
-        STMFD   r13!, {r0-r1, r6-r8, r14}
+        Push    "r0-r1, r6-r8, r14"
 
         BL      filer_active
         BNE     exit                            ; filer is not active
@@ -59,7 +60,7 @@ nomoreicons
         SWI     XHourglass_Off
 
 exit
-        LDMFD   r13!, {r0-r1, r6-r8, pc}
+        Pull    "r0-r1, r6-r8, pc"
 
 
         END

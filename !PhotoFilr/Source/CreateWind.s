@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -19,7 +20,7 @@
 wimp_createwindow_pre
         ; Purpose: Called before Wimp_CreateWindow.
 
-        STMFD   r13!, {r0-r2, r14}
+        Push    "r0-r2, r14"
 
         DBF     "ENTER wimp_createwindow_pre\n"
 
@@ -52,7 +53,7 @@ wimp_createwindow_pre
         DBF     "EXIT wimp_createwindow_pre\n"
 
 99
-        LDMFD   r13!, {r0-r2, pc}
+        Pull    "r0-r2, pc"
 
 
 wimp_createwindow_post
@@ -62,7 +63,7 @@ wimp_createwindow_post
 
         MOVVS   pc, r14                         ; exit if there was an error
 
-        STMFD   r13!, {r0-r2, r7, r14}
+        Push    "r0-r2, r7, r14"
 
         DBF     "ENTER wimp_createwindow_post\n"
 
@@ -115,6 +116,6 @@ wimp_createwindow_post
         DBF     "EXIT wimp_createwindow_post\n"
 
 99
-        LDMFD   r13!, {r0-r2, r7, pc}
+        Pull    "r0-r2, r7, pc"
 
         END

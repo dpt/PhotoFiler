@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -16,7 +17,7 @@ find_display
         ; Exit:    R7 = display block
         ;          EQ if the display is known, NE otherwise
 
-        STMFD   r13!, {r1, r14}
+        Push    "r1, r14"
 
         LDR     r1, [r12, #Window_Block]
         LDR     r7, [r12, #Display_First]
@@ -29,10 +30,10 @@ find_display
         LDRNE   r7, [r7, #Display_Next]
         BNE     %B0
 
-        LDMFD   r13!, {r1, pc}                  ; return R7, EQ implied
+        Pull    "r1, pc"                        ; return R7, EQ implied
 
 not_found
         TEQ     pc, #0                          ; set nz..
-        LDMFD   r13!, {r1, pc}                  ; return NE
+        Pull    "r1, pc"                        ; return NE
 
         END

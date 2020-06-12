@@ -4,9 +4,9 @@ _____________________________________________________________________________
 
                 Picture thumbnailing extension for the Filer
 
-                    Written by David Thomas, й 1998-2008
+                    Written by David Thomas, й 1998-2020
 
-                         version 2.08 (05 Feb 2008)
+                         version 2.10 (12 June 2020)
 _____________________________________________________________________________
 
 ____________
@@ -14,7 +14,7 @@ ____________
 Introduction
 ____________
 
-PhotoFiler adds picture "thumbnails" to the Filer.
+PhotoFiler adds "thumbnailing" of pictures to the RISC OS Filer.
 
 With PhotoFiler loaded, file type icons are replaced with a miniature version
 of the respective picture. This is useful for organising collections of
@@ -59,7 +59,7 @@ ________
    giving neater looking directory displays. This modification occurs in
    display only so that sorting orders are not affected.
 
- * PhotoFiler is a module written in 100% ARM assembler and completely
+ * PhotoFiler is a module entirely written in ARM assembler and completely
    transparent in operation. None of the Filer module's code is modified,
    and PhotoFiler uses very little memory itself.
 
@@ -104,7 +104,7 @@ The control panel is available by clicking SELECT on the icon bar icon.
 
   JPEGs
   иииии
-  Show JPEG thumbnails       When set, JPEG images will be thumbnailed.
+  Show JPEG thumbnails       When set, JPEGs will be thumbnailed.
 
   No dithering               Quickest, but lowest quality, thumbnails.
 
@@ -181,6 +181,8 @@ Only icons that are visible on screen are "seen" by PhotoFiler. This means
 that if you scroll a directory display to reveal more icons, they will then
 be noticed by PhotoFiler and processed.
 
+For similar reasons PhotoFiler cannot 
+
 
 Sizes
 иииии
@@ -239,10 +241,10 @@ Only the first sprite of a multiple-sprite file will be shown.
 JPEG Thumbnails
 иииииииииииииии
 The JPEG rendering feature of SpriteExtend 0.99 and later is used to generate
-thumbnails for JPEG images.
+thumbnails for JPEGs.
 
-The SpriteExtend JPEG rendering calls are quite particular about the files
-that they will render. Images with certain non-standard settings in the file
+The SpriteExtend JPEG rendering calls can be quite particular about the files
+that they will render. JPEGs with certain non-standard settings in the file
 header will often be rejected. You may wish to obtain one of the
 jpegtran-based utilities which can "clean" and optimise these JPEG images.
 
@@ -362,13 +364,13 @@ Unfortunately PhotoFiler is affected by a number of faults in RISC OS. They
 are detailed here.
 
 1. There is a bug in both current variants of the SpriteExtend module; the
-   RISC OS module which deals with JPEG images. The bug is three redundant
+   RISC OS module which deals with JPEGs. The bug is three redundant
    instructions which perform a read from an assumed location in the
    controlling task's wimpslot. This causes an "abort on data transfer"
    exception if the calling application has less than 24K of wimpslot.
 
-   Since PhotoFiler is not a wimp task, it has no wimpslot, so calling
-   SpriteExtend to render JPEG images will always fail. PhotoFiler
+   Since PhotoFiler executes in the context of the Filer, it has no wimpslot,
+   so calling SpriteExtend to render JPEGs will always fail. PhotoFiler
    automatically fixes this bug by copying the SpriteExtend module into RAM
    and disabling the redundant instructions. Where it needs to be applied,
    this fix takes approximately 75K of memory.
@@ -387,9 +389,14 @@ ___________
 Limitations
 ___________
 
- * PhotoFiler is not able to deduce the name of objects whose filenames have
-   been truncated in display using RISC OS 4's "maximum displayed filename
-   width" feature. These files are ignored.
+ * PhotoFiler works by intercepting the Filer at points and watching its
+   actions. If the Filer truncates a filename it's displaying PhotoFiler is
+   not able to deduce the correct filename of object being shown. This is
+   what happens when RISC OS 4's "maximum displayed filename width" feature
+   is enabled. You are recommended to disable that feature by setting both
+   values to zero in the Configure > Filer window. On the command line you
+   can use:
+   *Filer_Truncation -LargeIconDisplay 0 -SmallIconDisplay 0 -FullInfoDisplay 0
 
  * Pictures are loaded whole into memory before being rendered, up to a limit
    of 16Mb. Pictures which are too large to load will be shown with the
@@ -417,13 +424,30 @@ sequence.
 The DrawFile module should be placed in !System, in the directory
 "!System.350.Modules" if you have it or "!System.Modules" otherwise.
 
+___________
+
+Source Code
+___________
+
+Since version 2.08 PhotoFiler has been supplied with an uncrunched !RunImage
+and full source code to the module. The build requires amu, objasm and link.
+
+If you make positive changes to the sources and wish to have them fed back
+into the main version do please contact me.
+
 ________
 
 Versions
 ________
 
+2.10 (12 June 2020)
+ - Avoid sniffing domain ID directly to fix aborts on zero page protected machines.
+ - ArtWorks support is now OFF by default, due to its instability on RISC OS 5.
+ - The license is now a BSD 2-clause simplified license.
+
 2.08 (05 Feb 2008)
  - PhotoFiler is now once again freeware.
+ - The source code is included.
 
 2.07 (15 Apr 2004)
 2.06 (16 Feb 2004)
@@ -483,17 +507,34 @@ when called from SVC mode.
 
 Thanks to Robin Watts and Paul Gardiner of Warm Silence Software.
 
-_________
+_____________________
 
-Copyright
-_________
+Copyright and License
+_____________________
 
-This software ("PhotoFiler") is copyrighted work of David Thomas, it is
-supplied to you, the user, "as is"; you use this application entirely at your
-own risk. The author and publisher make no warranty as to the fitness of
-this software for any purpose. In no circumstances will the author or
-publisher be liable for any loss arising from the use or inability to use
-this software.
+Copyright й 1998-2020, David Thomas. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ФAS ISХ
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 
 _________________
 
@@ -501,7 +542,7 @@ Contact Addresses
 _________________
 
 If you have any comments, bug reports or suggestions for future versions then
-you can contact dave@davespace.co.uk.
+you can contact me at dave@davespace.co.uk.
 
 If you have a question, then please check it has not already been answered in
 this documentation before mailing.

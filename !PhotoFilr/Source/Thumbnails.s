@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -32,7 +33,7 @@ create_thumbnail
         ; Entry: R7 -> directory block
         ;        R8 -> icon block
 
-        STMFD   r13!, {r0-r11, r14}
+        Push    "r0-r11, r14"
 
         DBF     "ENTER create_thumbnail\n"
 
@@ -168,7 +169,7 @@ create_thumbnail_created
         BVS     create_thumbnail_error
   ]
 
-        STMFD   r13!, {r0-r7}                   ; stash
+        Push    r0-r7                           ; stash
 
         LDR     r0, small
         ADD     r1, r12, #SmallSpriteName
@@ -275,7 +276,7 @@ mini_gentab
         SWI     XWimp_SpriteOp
         ; ignore errors
 mini_end
-        LDMFD   r13!, {r0-r7}                   ; grab
+        Pull    r0-r7                           ; grab
 
   [     OUTPUT_TO_SPRITE <> 0
         SWI     XOS_SpriteOp                    ; restore
@@ -307,10 +308,9 @@ create_thumbnail_exit
 
         DBF     "EXIT create_thumbnail\n"
 
-        MRS     r14, CPSR
-        ORR     r14, r14, #1<<28                ; set V
-        MSR     CPSR_f, r14
-        LDMFD   r13!, {r0-r11, pc}
+	CLRV
+
+        Pull    "r0-r11, pc"
 
 
 icon_error
@@ -446,7 +446,7 @@ sprite_do_trans
         BVS     create_thumbnail_error
   ]
 
-        STMFD   r13!, {r0-r7}
+        Push    r0-r7
         ; Clear background to white
         MOV     r0, #&FFFFFF00                  ; white
         MOV     r3, #3<<7                       ; bg, use ecfs.
@@ -471,7 +471,7 @@ sprite_do_trans
         ADD     r6, r12, #Scale_Block
         ADD     r7, r12, #TranslationTable
         SWI     XOS_SpriteOp
-        LDMFD   r13!, {r0-r7}
+        Pull    r0-r7
 
         ; Switch output back from sprite
   [     OUTPUT_TO_SPRITE <> 0
@@ -579,7 +579,7 @@ validate_jpeg_ok
         BVS     create_thumbnail_error
   ]
 
-        STMFD   r13!, {r0-r4}
+        Push    r0-r4
         ; Clear background to white
         MOV     r0, #&FFFFFF00                  ; white
         MOV     r3, #3<<7                       ; bg, use ecfs.
@@ -596,7 +596,7 @@ validate_jpeg_ok
         AND     r5, r5, #Flag_JPEGDithering
         MOV     r5, r5, LSR #9                  ; [assumption]
         SWI     XJPEG_PlotScaled
-        LDMFD   r13!, {r0-r4}
+        Pull    r0-r4
 
         ; Switch output back from sprite
   [     OUTPUT_TO_SPRITE <> 0
@@ -686,7 +686,7 @@ create_thumbnail_drawfile
         BVS     create_thumbnail_error
   ]
 
-        STMFD   r13!, {r0-r4}
+        Push    r0-r4
         ; Clear background to white
         MOV     r0, #&FFFFFF00                  ; white
         MOV     r3, #3<<7                       ; bg, use ecfs.
@@ -700,7 +700,7 @@ create_thumbnail_drawfile
         ADD     r3, r12, #Draw_Transform
         MOV     r4, #0
         SWI     XDrawFile_Render
-        LDMFD   r13!, {r0-r4}
+        Pull    r0-r4
 
         ; Switch output back from sprite
   [     OUTPUT_TO_SPRITE <> 0
@@ -767,6 +767,7 @@ create_thumbnail_artworks
         MOV     r0, r11                         ; document address
         ADR     r1, awrender_callback
         MOV     r2, r9                          ; document length
+
         MOV     r14, pc
         MOV     pc, r10
 
@@ -786,11 +787,9 @@ create_thumbnail_artworks
         MOV     r2, r3
         MOV     r3, r4
         MOV     r4, r5
-        SUB     r3, r3, r1                      ; catch empty/-ve bboxes
-        CMP     r3, #0                          ; if (w <= 0)
-        SUBGT   r4, r4, r2                      ;
-        CMPGT   r4, #0                          ;  or (h <= 0) then
-        BLE     create_thumbnail_error          ;  fail
+        SUBS    r3, r3, r1                      ; catch invalid doc bounds
+        SUBGTS  r4, r4, r2
+        BLE     create_thumbnail_error
         DBF     "width x height is %3w x %4w\n"
 
         DBF     "Make an appropriately sized sprite\n"
@@ -876,7 +875,7 @@ create_thumbnail_artworks
         BVS     create_thumbnail_error
   ]
 
-        STMFD   r13!, {r0-r4, r12}
+        Push    "r0-r4, r12"
 
         ; Clear background to white
         MOV     r0, #&FFFFFF00                  ; white
@@ -892,25 +891,25 @@ create_thumbnail_artworks
         ; R0 = address of file init routine
         ; R1 = file init routine's R12
 
-        MOV     r14, r12                        ; temp wksp
+        MOV     r7, r12                         ; temp wksp
 
         MOV     r10, r0                         ; routine
         MOV     r12, r1                         ; routine's R12
 
         MOV     r0, r11                         ; document
-        ADD     r1, r14, #AWRender_Information
-        ADD     r2, r14, #Draw_Transform
-        ADD     r3, r14, #Vdu_Variables
-        LDR     r4, [r14, #AWRender_Memory + 0] ; resizable block
+        ADD     r1, r7, #AWRender_Information
+        ADD     r2, r7, #Draw_Transform
+        ADD     r3, r7, #Vdu_Variables
+        LDR     r4, [r7, #AWRender_Memory + 0]  ; resizable block
         ADR     r5, awrender_callback
-        LDR     r6, [r14, #ArtWorks_Quality]    ; WYSIWYG setting
+        LDR     r6, [r7, #ArtWorks_Quality]     ; WYSIWYG setting
         MOV     r7, #0                          ; OutputToVDU
 
         MOV     r14, pc
         MOV     pc, r10
 
 00
-        LDMFD   r13!, {r0-r4, r12}
+        Pull    "r0-r4, r12"
 
   [  OUTPUT_TO_SPRITE <> 0
         DBF     "Switch output back\n"
@@ -933,7 +932,7 @@ awrender_callback
         DBF     "ENTER awrender_callback, R11=%Bw\n"
 
         TEQ     r11, #0                         ; CallBackReason_Memory
-        BNE     %FT99
+        MOVNE   pc, r14                         ; return if anything else
 
         DBF     "memory, R0=%0w\n"
 
@@ -942,7 +941,7 @@ awrender_callback
         CMP     r0, #-1
         BEQ     returnsizes
 
-        STMFD   r13!, {r4, r12, r14}
+        Push    "r4, r12, r14"
 
         DBF     "memory claim, R0=%0w\n"
 
@@ -973,7 +972,7 @@ awrender_callback
 awrender_callback_exit
         DBF     "EXIT awrender_callback\n"
 
-        LDMFD   r13!, {r4, r12, pc}
+        Pull    "r4, r12, pc"
 
 returnsizes
         LDR     r1, stashed_r12                 ; get my R12
@@ -982,9 +981,8 @@ returnsizes
         DBF     "request: resizable at %0w, %1w long\n"
         DBF     "request: fixed     at %2w, %3w long\n"
 
-99
-        CMN     pc, #0                          ; Sets nzcv
         DBF     "returning\n"
+	CLRV
         MOV     pc, r14
   ]
 
@@ -1000,15 +998,14 @@ sprite
         ;        R4 = source image height in OS units
         ; Exit:  R0 = scale factor
 
-        STMFD   r13!, {r1-r10, r14}
+        Push    "r1-r10, r14"
 
         ; Sanity-check size
         LDR     r9, [r12, #Thumb_MaxWidth]
         TEQ     r9, #0
         LDRNE   r10, [r12, #Thumb_MaxHeight]
         TEQNE   r10, #0
-        MSREQ   cpsr_f, #1<<28                  ; set nzcV
-        LDMEQFD r13!, {r1-r10, pc}
+        BEQ	sprite_error
 
         CMP     r3, r9                          ; if (w < maxw) and
         CMPLT   r4, r10                         ;    (h < maxh) then
@@ -1021,7 +1018,7 @@ sprite
         MOV     r0, r6, LSL #16
         MOV     r1, r4                          ; (thumb_height<<16)/os_height
         BL      divide                          ; R0 = scale
-        LDMVSFD r13!, {r1-r10, pc}
+        BVS     exit
         MUL     r9, r3, r0
         MOV     r9, r9, LSR #16                 ; R9 = new_thumb_width
         MOV     r10, r6                         ; R10 = new_thumb_height
@@ -1032,7 +1029,7 @@ sprite
         MOV     r0, r5, LSL #16
         MOV     r1, r3                          ; (thumb_width<<16)/os_width
         BL      divide                          ; R0 = scale
-        LDMVSFD r13!, {r1-r10, pc}
+        BVS     exit
         MOV     r9, r5                          ; R9 = new_thumb_width
         MUL     r10, r0, r4
         MOV     r10, r10, LSR #16               ; R10 = new_thumb_height
@@ -1043,7 +1040,12 @@ sprite_make
         MOV     r2, r10
         BL      make_sprite
 
-        LDMFD   r13!, {r1-r10, pc}
+exit
+        Pull    "r1-r10, pc"
+
+sprite_error
+	SETV
+        Pull    "r1-r10, pc"
 
 
 make_sprite
@@ -1052,7 +1054,7 @@ make_sprite
         ;        R7 -> directory block
         ;        R8 -> icon block
 
-        STMFD   r13!, {r0-r6, r14}
+        Push    "r0-r6, r14"
 
         CMP     r1, #4
         MOVLT   r1, #4
@@ -1092,14 +1094,14 @@ make_sprite
   ]
 
         BL      sprcache_resize                 ; R1 = amount of space needed
-        LDMVSFD r13!, {r0-r6, pc}               ; return with flags
+        BVS     sprite_exit                     ; return with flags
 
 dont_claim
         LDR     r0, [r12, #Sprite_Counter]
         ADD     r1, r12, #Scratch
         MOV     r2, #12
         SWI     XOS_ConvertHex8
-        LDMVSFD r13!, {r0-r6, pc}               ; return with flags
+        BVS     sprite_exit
 
         ; Create the sprite
         MOV     r0, #-1                         ; current mode
@@ -1126,17 +1128,19 @@ make_sprite_create
         MOV     r0, #&0F                        ; create
         ORR     r0, r0, #&100
         SWI     XOS_SpriteOp
-        LDMFD   r13!, {r0-r6, pc}
+
+sprite_exit
+        Pull    "r0-r6, pc"
 
 
 delete_thumbnail
         ; Entry: R8 -> icon block
 
-        STMFD   r13!, {r0-r2, r14}
+        Push    "r0-r2, r14"
 
         LDR     r0, [r8, #Icon_SpriteArea]
         TEQ     r0, #Icon_Ours
-        LDMNEFD r13!, {r0-r2, pc}               ; not our sprite
+        BNE     delete_thumbnail_exit           ; not our sprite
 
         BL      shrink_need
 
@@ -1147,7 +1151,8 @@ delete_thumbnail
         ADD     r2, r2, #1                      ; skip initial 'S'
         SWI     XOS_SpriteOp                    ; delete it from sprite area
 
-        LDMFD   r13!, {r0-r2, pc}
+delete_thumbnail_exit
+        Pull    "r0-r2, pc"
 
 
         END

@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -50,7 +51,7 @@ find_icon
         ; Exit:  R8 -> icon block, or 0
         ;        EQ if the icon exists, NE otherwise
 
-        STMFD   r13!, {r2, r14}
+        Push    "r2, r14"
 
   [ HASHING <> 0
         ; ### Remember to stack R0 too if HASHING is on
@@ -76,7 +77,7 @@ not_found
         TEQ     pc, #0                          ; set nz..
                                                 ; not found: return NE
 99
-        LDMFD   r13!, {r2, pc}
+        Pull    "r2, pc"
 
 
 add_icon
@@ -90,11 +91,11 @@ add_icon
         ; Exit:  R8 -> icon block
         ;        or VS if failed
 
-        STMFD   r13!, {r0-r7, r14}
+        Push    "r0-r7, r14"
 
         MOV     r0, #sizeof_icon                ; claim memory
         BL      heap_claim
-        LDMVSFD r13!, {r0-r7, pc}               ; return with flags
+        Pull    "r0-r7, pc", VS                 ; return with flags
 
         MOV     r8, r0                          ; new icon block
 
@@ -164,7 +165,7 @@ done
         ORREQ   r14, r14, #Flag_NeedUpdate
         STREQ   r14, [r12, #Flags]
 
-        LDMFD   r13!, {r0-r7, pc}
+        Pull    "r0-r7, pc"
 
 wait
         DCB     "Swait"

@@ -2,6 +2,7 @@
 
         GET     Hdr.Debug
         GET     Hdr.Flags
+        GET     Hdr.Macros
         GET     Hdr.Options
         GET     Hdr.Symbols
         GET     Hdr.Workspace
@@ -26,20 +27,20 @@ wimp_ploticon_pre
         ;
         STR     r1, [r12, #PlotIcon]
 
-        STMFD   r13!, {r14}
+        Push    r14
 
         BL      filer_active
-        LDMNEFD r13!, {pc}                      ; filer is not active
+        Pull    pc, NE                          ; filer is not active
 
   [ MEDIA_SEARCH <> 0
         LDR     r14, [r12, #Flags]
         TST     r14, #Flag_MediaSearch          ; is a media search going on?
-        LDMNEFD r13!, {pc}                      ; yes - exit
+        Pull    pc, NE                          ; yes - exit
   ]
 
-        LDMFD   r13!, {r14}
+        Pull    r14
 
-        STMFD   r13!, {r0-r8, r14}
+        Push    "r0-r8, r14"
 
         ; Locate the display block for the current window
         ;
@@ -271,12 +272,12 @@ do_sprite
         TST     r0, #Flag_ApplicationSprites
         BNE     sprites_dontcheckleaf
 
-        STMFD   r13!, {r2}                      ; save file type
+        Push    "r2"                    ; save file type
         LDR     r1, [r12, #Icon_Block + 20]     ; R1 -> leafname
         ADR     r2, sprites_id
         MOV     r3, #0                          ; offset
         BL      strin
-        LDMFD   r13!, {r2}                      ; restore file type
+        Pull    "r2"                    ; restore file type
         CMP     r0, #-1
         BNE     wimp_ploticon_pre_ignore        ; INSTR(file$,"Sprites")<>0
 
@@ -448,7 +449,7 @@ wimp_ploticon_pre_ignore
         ;
         ; Leave the next PlotIcon as it was
         ;
-        LDMFD   r13!, {r0-r8, pc}
+        Pull    "r0-r8, pc"
 
 sprites_id
         DCB     "Sprites", 0
@@ -458,7 +459,7 @@ is_it_small
         ; Exit:   EQ => Small
         ;         NE => Big
 
-        STR     r14, [r13, #-4]!                ; STMFD r13!, {r14}
+        Push    r14
 
         LDR     r0, [r12, #Icon_Block + 16]     ; flags
         MVN     r14, r0
@@ -483,7 +484,7 @@ is_it_small
         TEQEQ   r14, #'_'
 
 99
-        LDR     pc, [r13], #4                   ; LDMFD r13!, {pc}
+        Pull    pc
 
 
 ; ---------------------------------------------------------------------------

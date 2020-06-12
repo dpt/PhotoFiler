@@ -1,5 +1,7 @@
 ; Divide routine
 
+        GET     Hdr.Macros
+
         EXPORT  divide
 
         AREA    |divide_code|, CODE, READONLY
@@ -58,7 +60,7 @@ divide
         ; Exit:    R0 = quotient
         ;          R1 = remainder
 
-        STMFD   r13!, {r2, r14}
+        Push    "r2, r14"
 
         TEQ     r1, #0                          ; test for division by zero
         BEQ     divide_by_zero
@@ -70,12 +72,12 @@ divide
 
         ; ### clear V?
 
-        LDMFD   r13!, {r2, pc}
+        Pull    "r2, pc"
 
 divide_by_zero
         ADR     r0, divide_by_zero_block
         MSR     cpsr_f, #1<<28                  ; set V
-        LDMFD   r13!, {r2, pc}
+        Pull    "r2, pc"
 
 divide_by_zero_block
         DCD     18                              ; error number from BASIC
