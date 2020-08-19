@@ -1,0 +1,46 @@
+| >MkRelease
+
+Set APP !PhotoFilr
+Set V 	210
+
+Set MkRelease$Dir <Obey$Dir>
+Dir <MkRelease$Dir>
+
+Set C <Obey$Dir>.photofiler<V>-release
+CDir <C>
+
+Copy Package.* 		<C>.* ~CFR~V
+
+Set D <C>.Apps.Desktop.<APP>
+CDir <D>
+
+Copy <APP>.!Help      	<D>.* ~CFR~V
+Copy <APP>.!Run       	<D>.* ~CFR~V
+Copy <APP>.!RunImage  	<D>.* ~CFR~V
+Copy <APP>.!Sprites   	<D>.* ~CFR~V
+Copy <APP>.5Sprites   	<D>.* ~CFR~V
+Copy <APP>.PhotoFiler 	<D>.* ~CFR~V
+Copy <APP>.Sprites    	<D>.* ~CFR~V
+Copy <APP>.Templates  	<D>.* ~CFR~V
+|
+CDir <D>.Library
+Copy <APP>.Library.IfRunning <D>.Library.* ~CFR~V
+Copy <APP>.Library.PhotoCheck <D>.Library.* ~CFR~V
+|
+CDir <D>.WimpSWIVe
+Copy <APP>.WimpSWIVe.*	<D>.WimpSWIVe.* ~CFR~V
+|
+| Add sources
+|
+Dir <APP>.Source
+Alias x zip -9ru <D>.Source @ -x o
+x
+|
+| Zip up
+|
+Dir <C>
+Alias x zip -9ru -I ^.photofiler<V>/zip @
+x
+
+| this fails...
+Dir <MkRelease$Dir>
