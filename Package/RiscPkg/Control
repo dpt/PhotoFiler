@@ -1,5 +1,5 @@
 Package: PhotoFiler
-Version: 2.10-1
+Version: 2.10-2
 Section: Desktop
 Priority: Optional
 Maintainer: David Thomas <dave@davespace.co.uk>
@@ -15,7 +15,8 @@ Description: Picture thumbnailing extension for the Filer
  .
  PhotoFiler also attempts to address a long-standing quirk ­ that of the pling ("!") character in front of application names. These can hidden from view in directory viewers, giving neater looking directory displays.
  .
- PhotoFiler requires RISC OS 3.6 or later. RISC OS 3.5 is supported, if the SpriteExtend 0.99 and DrawFile 1.30 modules are available (see the section "Compatibility" below).
+ PhotoFiler requires RISC OS 3.6 or later. RISC OS 3.5 is supported, if the SpriteExtend 0.99 and DrawFile 1.30 modules are available.
  .
  PhotoFiler is freeware.
 Homepage: http://www.davespace.co.uk/risc.os/photofiler.html
+Components: Apps.Desktop.!PhotoFilr (Movable)
